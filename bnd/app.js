@@ -76,7 +76,36 @@ App.post("/LoginData",async (req,res)=>{
     }
 })
 
+App.get('/getUsers',AuthMiddleware,async (req,res)=>{
+    try{
+        let GetUsers=await Model.find()
+        res.status(200).json({
+            success:true,
+            data:GetUsers
+        }) 
+    }
+    catch(err){
+
+    }
+})
+
+App.delete('/delete/:id', AuthMiddleware, async (req,res)=>{
+   try{
+   await Model.findByIdAndDelete(req.params.id)
+   res.status(200).json({
+    success:true,
+    message:"Data Deleted"
+   })
+   }
+   catch(err){
+    
+   }
+
+})
+
 function AuthMiddleware(req, res, next) {
+  try {
+
   let authHeader = req.headers["authorization"];
 
    let token = authHeader.split(" ")[1];
@@ -84,8 +113,6 @@ function AuthMiddleware(req, res, next) {
     if (!token) {
     return res.status(401).json({ message: "No Token Provided" });
   }
-
-  try {
     const decoded = Jwt.verify(token, process.env.SECRETKEY);
 
     req.user = decoded; // 🔥 next route ku send panrom
